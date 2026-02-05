@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residency Archive</title>
+    <script src="https://emea01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fcdn.tailwindcss.com%2F&data=05%7C02%7C%7C1eb4a6bce8d64a54a70b08de64d5f79e%7C84df9e7fe9f640afb435aaaaaaaaaaaa%7C1%7C0%7C639059067311525073%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=Bjx9F%2FRl%2B9dOoYDrDq3uY0JumjlddIJmpvr2j%2FSurWU%3D&reserved=0"></script>
+    <style>
+        .day-uk { background-color: #2563eb; color: white; border-radius: 4px; font-weight: bold; }
+        .day-pt { background-color: #059669; color: white; border-radius: 4px; font-weight: bold; }
+        .day-other { background-color: #d97706; color: white; border-radius: 4px; font-weight: bold; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+        .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+        .mini-day { width: 100%; aspect-square: 1/1; display: flex; align-items: center; justify-content: center; font-size: 7px; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans pb-20 text-slate-900">
+
+    <div class="max-w-5xl mx-auto p-4">
+        <header class="py-6 border-b border-slate-200 mb-6 text-center">
+            <h1 class="text-3xl font-black tracking-tighter text-indigo-950 underline decoration-indigo-500">Residency Archive</h1>
+        </header>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8 max-w-2xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="tripName" placeholder="Trip Name" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                <select id="location" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold appearance-none text-center">
+                    <option value="uk">United Kingdom 🇬🇧</option>
+                    <option value="pt">Portugal 🇵🇹</option>
+                    <option value="other">Other 🌍</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="date" id="startDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+                <input type="date" id="endDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm">
+            </div>
+            <button onclick="logDates()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-indigo-700 active:scale-95 transition-all">Log Trip</button>
+        </div>
+
+        <div id="fiscal-summaries-container" class="mb-10">
+            <div id="fiscal-summaries" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center"></div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-2 mb-8">
+            <button onclick="setView('month')" id="btn-month" class="px-5 py-2 rounded-full text-xs font-bold border transition-all">Monthly View</button>
+            <button onclick="setView('year')" id="btn-year" class="px-5 py-2 rounded-full text-xs font-bold border transition-all">Full Year Overview</button>
+            <button onclick="setView('journal')" id="btn-journal" class="px-5 py-2 rounded-full text-xs font-bold border transition-all">Journal</button>
+        </div>
+
+        <div id="view-month" class="max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="changeMonth(-1)" class="p-2 text-slate-400">←</button>
+                <h2 id="monthDisplay" class="font-black text-slate-800 text-lg uppercase"></h2>
+                <button onclick="changeMonth(1)" class="p-2 text-slate-400">→</button>
+            </div>
+            <div class="calendar-grid mb-2 text-center text-[10px] font-bold text-slate-300">
+                <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+            </div>
+            <div id="calendar" class="calendar-grid min-h-[240px]"></div>
+        </div>
+
+        <div id="view-year" class="hidden bg-white rounded-3xl shadow-sm border border-slate-200 p-8 text-center">
+            <div class="flex items-center justify-center gap-6 mb-8 pb-6 border-b border-slate-100">
+                <button onclick="changeYear(-1)" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full border border-slate-200 font-bold text-slate-400 hover:text-indigo-600 shadow-sm">←</button>
+                <div>
+                    <h2 id="yearTitle" class="text-4xl font-black text-indigo-950 leading-none"></h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Global Annual Map</p>
+                </div>
+                <button onclick="changeYear(1)" class="w-10 h-10 flex items-center justify-center bg-slate-50 rounded-full border border-slate-200 font-bold text-slate-400 hover:text-indigo-600 shadow-sm">→</button>
+            </div>
+            <div id="year-container" class="year-grid"></div>
+        </div>
+
+        <div id="view-journal" class="hidden max-w-2xl mx-auto space-y-3">
+            <div id="journal-list"></div>
+        </div>
+
+        <div class="mt-8 max-w-2xl mx-auto bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
+            <h3 class="text-xs font-black text-indigo-900 uppercase tracking-widest mb-4">Device Sync</h3>
+            <div class="space-y-4">
+                <button onclick="copySyncData()" class="w-full bg-white text-indigo-600 py-3 rounded-xl font-bold text-xs border border-indigo-200 shadow-sm">📋 Copy Sync Data (for other devices)</button>
+                <div class="flex gap-2">
+                    <input type="text" id="syncInput" placeholder="Paste Sync Data here..." class="flex-1 bg-white border border-indigo-200 rounded-xl p-2 text-xs">
+                    <button onclick="importSyncData()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs">Import</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20 text-center">
+            <button onclick="resetAll()" class="text-xs font-bold text-red-200 hover:text-red-500 uppercase tracking-widest cursor-pointer italic">Reset Data</button>
+        </div>
+    </div>
+
+    <script>
+        let trips = JSON.parse(localStorage.getItem('finalRepoTrips')) || [];
+        let logs = {};
+        let currentViewDate = new Date();
+        let activeView = 'month';
+
+        function rebuildLogs() {
+            logs = {};
+            trips.sort((a, b) => new Date(a.start) - new Date(b.start));
+            trips.forEach(trip => {
+                let start = new Date(trip.start);
+                let end = new Date(trip.end);
+                while (start < end) {
+                    logs[start.toISOString().split('T')[0]] = trip.loc;
+                    start.setDate(start.getDate() + 1);
+                }
+            });
+            localStorage.setItem('finalRepoTrips', JSON.stringify(trips));
+        }
+
+        function setView(view) {
+            activeView = view;
+            ['month', 'year', 'journal'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.toggle('hidden', v !== view);
+                const btn = document.getElementById(`btn-${v}`);
+                btn.className = v === view ? "px-5 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-md" : "px-5 py-2 rounded-full text-xs font-bold bg-white text-slate-500 border border-slate-200";
+            });
+            render();
+        }
+
+        function logDates() {
+            const startStr = document.getElementById('startDate').value;
+            const endStr = document.getElementById('endDate').value;
+            const loc = document.getElementById('location').value;
+            const name = document.getElementById('tripName').value || "Trip";
+            if (!startStr || !endStr) return;
+            let start = new Date(startStr);
+            let end = new Date(endStr);
+            let count = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            trips.push({ id: Date.now(), name, start: startStr, end: endStr, loc, days: count });
+            render();
+        }
+
+        function render() {
+            rebuildLogs();
+            const year = currentViewDate.getFullYear();
+            let ukTotal = 0, ptTotal = 0, otherTotal = 0;
+            const ukS = new Date(year, 3, 6), ukE = new Date(year + 1, 3, 5);
+            Object.keys(logs).forEach(k => {
+                const d = new Date(k);
+                if (logs[k] === 'uk' && d >= ukS && d <= ukE) ukTotal++;
+                if (logs[k] === 'pt' && d.getFullYear() === year) ptTotal++;
+                if (logs[k] === 'other' && d.getFullYear() === year) otherTotal++;
+            });
+
+            document.getElementById('fiscal-summaries').innerHTML = `
+                <div class="bg-blue-600 text-white p-5 rounded-3xl shadow-lg border-b-4 border-blue-800"><p class="text-[9px] font-bold opacity-70 uppercase tracking-widest">UK FY ${year}/${String(year+1).slice(-2)}</p><p class="text-3xl font-black">${ukTotal}d</p></div>
+                <div class="bg-emerald-600 text-white p-5 rounded-3xl shadow-lg border-b-4 border-emerald-800"><p class="text-[9px] font-bold opacity-70 uppercase tracking-widest">PT Year ${year}</p><p class="text-3xl font-black">${ptTotal}d</p></div>
+                <div class="bg-orange-600 text-white p-5 rounded-3xl shadow-lg border-b-4 border-orange-800"><p class="text-[9px] font-bold opacity-70 uppercase tracking-widest">Other ${year}</p><p class="text-3xl font-black">${otherTotal}d</p></div>`;
+
+            if (activeView === 'month') renderMonth(year);
+            else if (activeView === 'year') renderYear(year);
+            else renderJournal(year);
+        }
+
+        function renderMonth(year) {
+            const cal = document.getElementById('calendar'), month = currentViewDate.getMonth();
+            cal.innerHTML = '';
+            document.getElementById('monthDisplay').innerText = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(currentViewDate);
+            const first = new Date(year, month, 1).getDay(), total = new Date(year, month + 1, 0).getDate();
+            for (let i = 0; i < first; i++) cal.innerHTML += `<div></div>`;
+            for (let d = 1; d <= total; d++) {
+                const k = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                cal.innerHTML += `<div class="h-10 flex items-center justify-center text-[10px] ${logs[k] ? 'day-'+logs[k] : 'text-slate-300'}">${d}</div>`;
+            }
+        }
+
+        function renderYear(year) {
+            const container = document.getElementById('year-container');
+            container.innerHTML = '';
+            document.getElementById('yearTitle').innerText = year;
+            for (let m = 0; m < 12; m++) {
+                let html = `<div class="p-3 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm"><h4 class="text-[9px] font-black text-slate-400 mb-2 uppercase text-center">${new Intl.DateTimeFormat('en-US', { month: 'short' }).format(new Date(year, m))}</h4><div class="calendar-grid">`;
+                const first = new Date(year, m, 1).getDay(), total = new Date(year, m + 1, 0).getDate();
+                for (let i = 0; i < first; i++) html += `<div></div>`;
+                for (let d = 1; d <= total; d++) {
+                    const k = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    html += `<div class="mini-day ${logs[k] ? 'day-'+logs[k] : 'bg-white'}">${d}</div>`;
+                }
+                container.innerHTML += html + `</div></div>`;
+            }
+        }
+
+        function renderJournal(year) {
+            const container = document.getElementById('journal-list');
+            const filtered = trips.filter(t => new Date(t.start).getFullYear() === year);
+            container.innerHTML = filtered.length ? '' : `<p class="text-center text-slate-400 py-20 italic">No trips recorded for ${year}.</p>`;
+            filtered.slice().reverse().forEach(t => {
+                const accent = t.loc === 'uk' ? 'blue' : (t.loc === 'pt' ? 'emerald' : 'orange');
+                container.innerHTML += `<div class="bg-white p-5 rounded-3xl border border-slate-100 flex justify-between items-center shadow-sm mb-3">
+                    <div><h3 class="font-black text-slate-800 text-lg">${t.name}</h3><p class="text-[10px] text-${accent}-600 uppercase font-black tracking-widest">${t.loc} • ${t.start} to ${t.end}</p></div>
+                    <div class="flex items-center gap-4"><span class="text-2xl font-black text-slate-900">${t.days}d</span><button onclick="deleteTrip(${t.id})" class="text-slate-300 hover:text-red-500 text-2xl">×</button></div>
+                </div>`;
+            });
+        }
+
+        function deleteTrip(id) {
+            trips = trips.filter(t => t.id !== id);
+            render();
+        }
+
+        function copySyncData() {
+            navigator.clipboard.writeText(JSON.stringify({trips}));
+            alert("Sync data copied!");
+        }
+
+        function importSyncData() {
+            const input = document.getElementById('syncInput').value;
+            if (!input) return;
+            try {
+                const data = JSON.parse(input);
+                const existingIds = new Set(trips.map(t => t.id));
+                data.trips.forEach(t => { if (!existingIds.has(t.id)) trips.push(t); });
+                render();
+                alert("Merged!");
+                document.getElementById('syncInput').value = "";
+            } catch (e) { alert("Invalid Data"); }
+        }
+
+        function changeYear(dir) { currentViewDate.setFullYear(currentViewDate.getFullYear() + dir); render(); }
+        function changeMonth(dir) { currentViewDate.setMonth(currentViewDate.getMonth() + dir); render(); }
+        function resetAll() { if(confirm("Erase all history?")) { localStorage.clear(); location.reload(); }}
+        render();
+    </script>
+</body>
+</html>
+
